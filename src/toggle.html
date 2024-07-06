@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toggle Content</title>
+    <style>
+        #toggle-container {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            align-items: center;
+            gap: 10px;
+            background: #212121;
+            padding: 5px 10px;
+            margin-left: 120px;
+            margin-top: 10px;
+            border: solid 1px #464646;
+            border-radius: 35px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 25px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .2s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 21px;
+            width: 21px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .2s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4caf50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(25px);
+        }
+    </style>
+</head>
+<body>
+<div id="toggle-container">
+    <span>Temporary Chat</span>
+    <label class="switch">
+        <input type="checkbox" id="toggle-button">
+        <span class="slider"></span>
+    </label>
+</div>
+</body>
+</html>
