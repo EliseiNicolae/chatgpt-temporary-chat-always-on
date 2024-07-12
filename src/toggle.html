@@ -5,6 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toggle Content</title>
     <style>
+        :root {
+            --background-color: #212121;
+            --border-color: #464646;
+            --slider-background: #ccc;
+            --slider-checked-background: #4caf50;
+            --text-color: white;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --background-color: #f0f0f0;
+                --border-color: #bdbdbd;
+                --slider-background: #ccc;
+                --slider-checked-background: #4caf50;
+                --text-color: black;
+            }
+        }
+
         #toggle-container {
             display: flex;
             position: fixed;
@@ -13,19 +31,21 @@
             transform: translateX(-50%);
             align-items: center;
             gap: 10px;
-            background: #212121;
+            background: var(--background-color);
+            color: var(--text-color);
             padding: 5px 10px;
             margin-left: 120px;
-            margin-top: 10px;
-            border: solid 1px #464646;
+            margin-top: 12px;
+            border: solid 1px var(--border-color);
             border-radius: 35px;
+            font-size: 0.85rem;
         }
 
         .switch {
             position: relative;
             display: inline-block;
-            width: 50px;
-            height: 25px;
+            width: 42px;
+            height: 21px;
         }
 
         .switch input {
@@ -41,7 +61,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #ccc;
+            background-color: var(--slider-background);
             transition: .2s;
             border-radius: 20px;
         }
@@ -49,8 +69,8 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 21px;
-            width: 21px;
+            height: 17px;
+            width: 17px;
             left: 2px;
             bottom: 2px;
             background-color: white;
@@ -59,17 +79,28 @@
         }
 
         input:checked + .slider {
-            background-color: #4caf50;
+            background-color: var(--slider-checked-background);
         }
 
         input:checked + .slider:before {
-            transform: translateX(25px);
+            transform: translateX(20px);
+        }
+
+        /* media mobile */
+        @media (max-width: 768px) {
+            #toggle-container {
+                margin-left: 90px;
+            }
+
+            .text-temporary {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
 <div id="toggle-container">
-    <span>Temporary Chat</span>
+    <span class="text-temporary">Temporary Chat</span>
     <label class="switch">
         <input type="checkbox" id="toggle-button">
         <span class="slider"></span>

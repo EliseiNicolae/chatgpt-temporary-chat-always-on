@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "ChatGPT - Keep Temporary Chat ON",
-  "version": "1.1",
+  "name": "ChatGPT: Temporary chat always ON",
+  "version": "1.2",
   "permissions": [],
   "content_scripts": [
     {
@@ -19,5 +19,10 @@
       "resources": ["toggle.html"],
       "matches": ["https://chatgpt.com/*"]
     }
-  ]
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
 }

@@ -9,7 +9,9 @@ function setTemporaryChatOn () {
     // Add the 'temporary-chat=true' parameter
     params.append('temporary-chat', 'true');
     // Update the URL including the path and parameters
-    window.location.href = `${url.origin}/?${params}`;
+    if (url.pathname === '/') {
+      window.location.href = `${url.origin}/?${params}`;
+    }
   }
 }
 
@@ -22,7 +24,9 @@ function setTemporaryChatOff () {
     // Remove the 'temporary-chat' parameter
     params.delete('temporary-chat');
     // Update the URL including the path and parameters
-    window.location.href = `${url.origin}/?${params}`;
+    if (url.pathname === '/') {
+      window.location.href = `${url.origin}/?${params}`;
+    }
   }
 }
 
@@ -73,15 +77,18 @@ function checkUrlChange () {
       if (localStorage.getItem('temporary_chat') === 'true' && !params.has('temporary-chat')) {
         localStorage.setItem('temporary_chat', 'true');
         const toggleButton = document.getElementById('toggle-button');
-        toggleButton.checked = true;
-        params.append('temporary-chat', 'true');
-        window.location.href = `${url.origin}/?${params}`;
+        if (toggleButton && toggleButton?.checked) {
+          toggleButton.checked = true;
+        }
+        setTemporaryChatOn();
       }
 
       // check if temporary-chat param has value 'true' and set the toggle button to true and update the local storage
       if (params.has('temporary-chat') && params.get('temporary-chat') === 'true') {
         const toggleButton = document.getElementById('toggle-button');
-        toggleButton.checked = true;
+        if (toggleButton && toggleButton?.checked) {
+          toggleButton.checked = true;
+        }
         localStorage.setItem('temporary_chat', 'true');
       }
     }
@@ -98,30 +105,28 @@ function checkUrlChange () {
 // [END] ********************** Observers **********************
 
 // Function to inject HTML content from toggle.html
-function injectHTML () {
-  fetch(chrome.runtime.getURL('toggle.html'))
-      .then(response => response.text())
-      .then(data => {
-        const div = document.createElement('div');
-        div.innerHTML = data;
-        document.body.appendChild(div);
-        const toggleButton = document.getElementById('toggle-button');
-        if (localStorage.getItem('temporary_chat') === 'true') {
-          toggleButton.checked = true;
-        } else {
-          toggleButton.checked = false;
-        }
-        toggleButton.addEventListener('change', function () {
-          if (this.checked) {
-            localStorage.setItem('temporary_chat', 'true');
-            setTemporaryChatOn();
-          } else {
-            localStorage.setItem('temporary_chat', 'false');
-            setTemporaryChatOff()
-          }
-        });
-      })
-      .catch(error => console.error('Error fetching the HTML:', error));
+function injectHTMLToggle () {
+  if (window.location.pathname === '/') {
+    fetch(chrome.runtime.getURL('toggle.html'))
+        .then(response => response.text())
+        .then(data => {
+          const div = document.createElement('div');
+          div.innerHTML = data;
+          document.body.appendChild(div);
+          const toggleButton = document.getElementById('toggle-button');
+          toggleButton.checked = localStorage.getItem('temporary_chat') === 'true';
+          toggleButton.addEventListener('change', function () {
+            if (this.checked) {
+              localStorage.setItem('temporary_chat', 'true');
+              setTemporaryChatOn();
+            } else {
+              localStorage.setItem('temporary_chat', 'false');
+              setTemporaryChatOff();
+            }
+          });
+        })
+        .catch(error => console.error('Error fetching the HTML:', error));
+  }
 }
 
 // Initial load handling
@@ -131,4 +136,4 @@ handleInitialLoad();
 checkUrlChange();
 
 // Inject HTML when the script is loaded
-injectHTML();
+injectHTMLToggle();
