@@ -33,7 +33,6 @@ function setTemporaryChatOff () {
 // Function to handle the initial setting of localStorage and URL
 function handleInitialLoad () {
   if (localStorage.getItem('temporary_chat') === null) {
-    localStorage.setItem('temporary_chat', 'true');
     setTemporaryChatOn();
   } else if (localStorage.getItem('temporary_chat') === 'true') {
     setTemporaryChatOn();
@@ -106,34 +105,34 @@ function checkUrlChange () {
 
 // Function to inject HTML content from toggle.html
 function injectHTMLToggle () {
-  if (window.location.pathname === '/') {
-    fetch(chrome.runtime.getURL('toggle.html'))
-        .then(response => response.text())
-        .then(data => {
-          const div = document.createElement('div');
-          div.innerHTML = data;
-          document.body.appendChild(div);
-          const toggleButton = document.getElementById('toggle-button');
-          toggleButton.checked = localStorage.getItem('temporary_chat') === 'true';
-          toggleButton.addEventListener('change', function () {
-            if (this.checked) {
-              localStorage.setItem('temporary_chat', 'true');
-              setTemporaryChatOn();
-            } else {
-              localStorage.setItem('temporary_chat', 'false');
-              setTemporaryChatOff();
-            }
-          });
-        })
-        .catch(error => console.error('Error fetching the HTML:', error));
-  }
+  fetch(chrome.runtime.getURL('toggle.html'))
+      .then(response => response.text())
+      .then(data => {
+        const div = document.createElement('div');
+        div.innerHTML = data;
+        document.body.appendChild(div);
+        const toggleButton = document.getElementById('toggle-button');
+        toggleButton.checked = localStorage.getItem('temporary_chat') === 'true';
+        toggleButton.addEventListener('change', function () {
+          if (this.checked) {
+            localStorage.setItem('temporary_chat', 'true');
+            setTemporaryChatOn();
+          } else {
+            localStorage.setItem('temporary_chat', 'false');
+            setTemporaryChatOff();
+          }
+        });
+      })
+      .catch(error => console.error('Error fetching the HTML:', error));
 }
 
+if (window.location.pathname === '/' || window.location.pathname === '') {
 // Initial load handling
-handleInitialLoad();
+  handleInitialLoad();
 
 // Start checking for URL changes
-checkUrlChange();
+  checkUrlChange();
 
 // Inject HTML when the script is loaded
-injectHTMLToggle();
+  injectHTMLToggle();
+}

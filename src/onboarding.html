@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --background-color: #212121;
+            --border-color: #464646;
+            --slider-background: #ccc;
+            --slider-checked-background: #309e34;
+            --text-color: white;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --background-color: #f0f0f0;
+                --border-color: #bdbdbd;
+                --slider-background: #ccc;
+                --slider-checked-background: #309e34;
+                --text-color: black;
+            }
+        }
+
+        .onboarding-chatgpt-temporary {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translate(-50%, calc(-50% - 30px));
+            }
+            to {
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .onboarding-chatgpt-temporary img {
+            height: 220px;
+            width: unset;
+        }
+
+        .modal {
+            position: absolute;
+            background: var(--background-color);
+            color: var(--text-color);
+            max-width: 800px;
+            max-height: 400px;
+            width: 100%;
+            height: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, calc(-50% - 30px));
+            border-radius: 20px;
+            border: solid 1px var(--border-color);
+            padding: 25px;
+            animation: slideDown 0.3s ease-in-out forwards;
+        }
+
+        .modal-content {
+            display: none;
+        }
+
+        .modal-content.active {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .modal-content h2 {
+            text-align: center;
+            margin-bottom: 2.3rem;
+        }
+
+        .modal-content .content {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: end;
+            gap: 1rem;
+            margin-top: auto;
+        }
+
+        .button-container .btn-prev {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .button-container .btn-next {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--slider-checked-background);
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .modal {
+                max-height: 100%;
+            }
+
+            .modal-content .content {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .modal-content .content img {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="onboarding-chatgpt-temporary">
+    <div class="modal">
+        <div id="step-1" class="modal-content active">
+            <h2> 👋 Hi there!</h2>
+            <div class="content">
+                <img id="toggle-onboarding-image" alt="toggle onboarding" height="220">
+                <div>
+                    <p>As you can see, you have a toggle at the top of the website that indicates the state of temporary
+                        chat.</p>
+                    <br />
+                    <p>You can enable or disable the Temporary Chat if you click on the <b>toggle</b>.</p>
+                </div>
+            </div>
+            <div class="button-container">
+                <button id="next-button" class="btn-next">Next</button>
+            </div>
+        </div>
+        <div id="step-2" class="modal-content">
+            <h2>Done! 👌</h2>
+            <div class="content">
+                <img id="new-chat-onboarding" alt="new chat onboarding" height="220">
+                <p>Now every time you click on 'New Chat', it will enter automatically in Temporary Chat.</p>
+            </div>
+            <div class="button-container">
+                <button id="prev-button" class="btn-prev">Back</button>
+                <button id="continue-button" class="btn-next">Gotcha, let's start 🚀</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
