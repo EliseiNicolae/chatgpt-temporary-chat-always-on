@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChatGPT Extension</title>
+    <style>
+        :root {
+            --background-color: #212121;
+            --border-color: #464646;
+            --slider-background: #ccc;
+            --slider-checked-background: #4caf50;
+            --text-color: white;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --background-color: #f0f0f0;
+                --border-color: #bdbdbd;
+                --slider-background: #ccc;
+                --slider-checked-background: #4caf50;
+                --text-color: black;
+            }
+        }
+
+        .body_popup {
+            width: 350px;
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            margin: 0 !important;
+            padding: 1rem;
+
+            .title_popup {
+                font-size: 1rem;
+                text-align: center;
+                color: var(--text-color);
+                text-decoration: none;
+                margin-bottom: 0.5rem;
+
+                &:hover {
+                    text-decoration: underline;
+                    transition: 0.3s;
+                }
+            }
+
+            .donation {
+                margin-bottom: 1rem;
+
+                .title {
+                    font-size: 0.8rem;
+                    margin-bottom: 0.5rem;
+                }
+
+                .links {
+                    display: flex;
+                    gap: 0.5rem;
+
+                    a img {
+                        border-radius: 50%;
+                        transition: 0.3s;
+
+                        &:hover {
+                            transform: scale(1.1);
+                            transition: 0.3s;
+                        }
+
+                    }
+                }
+            }
+
+            .contact {
+                color: white;
+
+                p {
+                    margin-bottom: 0.3rem;
+                }
+
+                p, a, span {
+                    color: var(--text-color);
+                }
+            }
+
+            hr {
+                border: 0;
+                height: 1px;
+                background: var(--border-color);
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body class="body_popup">
+<a class="title_popup" href="https://chromewebstore.google.com/detail/chatgpt-keep-temporary-ch/hgbjeckjcopbneknolackcedoknnkjpe?authuser=0&hl=en-GB" target="_blank">
+    ChatGPT: Temporary chat always ON
+</a>
+<div class="donation">
+    <p class="title">Found the extension helpful? You can support us by:</p>
+    <div class="links">
+        <a href="https://ko-fi.com/eliseinicolae" target="_blank">
+            <img src="icons/ko-fi.png" alt="ko-fi logo" width="30" height="30">
+        </a>
+        <a href="https://revolut.me/eliseinicolae" target="_blank">
+            <img src="icons/revolut.png" alt="revolut logo" width="30" height="30">
+        </a>
+    </div>
+</div>
+
+<hr />
+
+<div class="contact">
+    <p>Developer contact:</p>
+    <a href="https://www.linkedin.com/in/eliseinicolae/" target="_blank">https://www.linkedin.com/in/eliseinicolae/</a>
+    <span>or</span>
+    <a href="mailto:nicolae.elisei1999@gmail.com">email</a>
+</div>
+</body>
+</html>

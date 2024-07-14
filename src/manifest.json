@@ -1,16 +1,16 @@
 {
   "manifest_version": 3,
   "name": "ChatGPT: Temporary chat always ON",
-  "version": "1.3",
-  "permissions": [],
+  "version": "1.3.1",
+  "permissions": [ ],
   "content_scripts": [
     {
       "matches": [
         "https://chatgpt.com/*"
       ],
       "js": [
-        "contentScript.js",
-        "onboarding.js"
+        "onboarding.js",
+        "contentScript.js"
       ],
       "run_at": "document_end"
     }
@@ -21,7 +21,9 @@
         "toggle.html",
         "onboarding.html",
         "icons/toggle_onboarding.png",
-        "icons/new_chat_onboarding.png"
+        "icons/new_chat_onboarding.png",
+        "icons/ko-fi.png",
+        "icons/revolut.png"
       ],
       "matches": [
         "https://chatgpt.com/*"
@@ -32,5 +34,13 @@
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   }
 }
