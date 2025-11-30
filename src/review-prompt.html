@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        :root {
+            --background-color: #212121;
+            --border-color: #464646;
+            --text-color: white;
+            --btn-primary: #309e34;
+            --star-color: #ffc107;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --background-color: #f0f0f0;
+                --border-color: #bdbdbd;
+                --text-color: black;
+            }
+        }
+
+        .review-prompt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999999;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translate(-50%, calc(-50% - 20px)); opacity: 0; }
+            to { transform: translate(-50%, -50%); opacity: 1; }
+        }
+
+        .review-prompt-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--background-color);
+            color: var(--text-color);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            animation: slideDown 0.3s ease-in-out forwards;
+        }
+
+        .review-prompt-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            padding: 0;
+            color: var(--text-color);
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s, background 0.2s;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .review-prompt-close:hover {
+            opacity: 1;
+            background: var(--border-color);
+        }
+
+        .review-prompt-stars {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin: 8px 0 16px;
+        }
+
+        .review-prompt-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .review-prompt-text {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .review-prompt-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 20px;
+            background: #ffc107;
+            border: none;
+            border-radius: 8px;
+            color: #1a1a1a;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-decoration: none;
+        }
+
+        .review-prompt-btn:hover {
+            opacity: 0.9;
+        }
+
+        .review-prompt-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+<div class="review-prompt-overlay">
+    <div class="review-prompt-modal">
+        <button class="review-prompt-close" id="review-prompt-close">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+        </button>
+        <div class="review-prompt-stars">
+            <svg viewBox="0 0 24 24" width="32" height="32" style="fill: #ffc107;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            <svg viewBox="0 0 24 24" width="32" height="32" style="fill: #ffc107;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            <svg viewBox="0 0 24 24" width="32" height="32" style="fill: #ffc107;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            <svg viewBox="0 0 24 24" width="32" height="32" style="fill: #ffc107;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            <svg viewBox="0 0 24 24" width="32" height="32" style="fill: #ffc107;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        </div>
+        <div class="review-prompt-title">Is Temporary Chat working for you?</div>
+        <div class="review-prompt-text">Help others keep their AI conversations private too!</div>
+        <a class="review-prompt-btn" id="review-prompt-btn" href="https://chromewebstore.google.com/detail/hgbjeckjcopbneknolackcedoknnkjpe/reviews" target="_blank">
+            Leave a Review
+        </a>
+    </div>
+</div>
+</body>
+</html>

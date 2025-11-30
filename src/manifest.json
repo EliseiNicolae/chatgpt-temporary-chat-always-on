@@ -6,12 +6,12 @@
   "content_scripts": [
     {
       "matches": ["https://chatgpt.com/*"],
-      "js": ["onboarding.js", "chatgpt.js"],
+      "js": ["onboarding.js", "review-prompt.js", "chatgpt.js"],
       "run_at": "document_end"
     },
     {
       "matches": ["https://claude.ai/*"],
-      "js": ["onboarding.js", "claude.js"],
+      "js": ["onboarding.js", "review-prompt.js", "claude.js"],
       "run_at": "document_end"
     }
   ],
@@ -20,6 +20,7 @@
       "resources": [
         "toggle.html",
         "onboarding.html",
+        "review-prompt.html",
         "icons/toggle_onboarding.png",
         "icons/new_chat_onboarding.png",
         "icons/ko-fi.png",
