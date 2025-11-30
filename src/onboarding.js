@@ -1,64 +1,55 @@
-// Onboarding Handler
+// Onboarding - Shows once across all domains
+;(function () {
+  const KEY = 'onboardingDone'
+  const isClaude = location.hostname === 'claude.ai'
 
-const isClaude = window.location.hostname === 'claude.ai'
+  const isMain = isClaude
+    ? location.pathname === '/' || location.pathname === '/new'
+    : /^\/?$/.test(location.pathname)
 
-const isCorrectPath = isClaude
-  ? (window.location.pathname === '/' || window.location.pathname === '/new')
-  : (window.location.pathname === '/' || window.location.pathname === '')
+  const hasParam = isClaude
+    ? new URLSearchParams(location.search).has('incognito')
+    : new URLSearchParams(location.search).get('temporary-chat') === 'true'
 
-const params = new URLSearchParams(window.location.search)
+  if (!isMain || !hasParam) return
 
-const hasActiveParam = isClaude
-  ? params.has('incognito')
-  : (params.has('temporary-chat') && params.get('temporary-chat') === 'true')
+  chrome.storage.local.get([KEY], r => {
+    if (r[KEY]) return
 
-function showOnboarding () {
-  fetch(chrome.runtime.getURL('onboarding.html'))
-    .then(response => response.text())
-    .then(html => {
-      const div = document.createElement('div')
-      div.innerHTML = html
-      document.body.appendChild(div)
+    chrome.storage.local.set({ [KEY]: true })
 
-      document.getElementById('toggle-onboarding-image').src = chrome.runtime.getURL('icons/toggle_onboarding.png')
-      document.getElementById('new-chat-onboarding').src = chrome.runtime.getURL('icons/new_chat_onboarding.png')
+    fetch(chrome.runtime.getURL('onboarding.html'))
+      .then(r => r.text())
+      .then(html => {
+        const div = document.createElement('div')
+        div.innerHTML = html
+        document.body.appendChild(div)
 
-      const step1 = document.getElementById('step-1')
-      const step2 = document.getElementById('step-2')
+        document.getElementById('toggle-onboarding-image').src = chrome.runtime.getURL('icons/toggle_onboarding.png')
+        document.getElementById('new-chat-onboarding').src = chrome.runtime.getURL('icons/new_chat_onboarding.png')
 
-      document.getElementById('next-button').addEventListener('click', () => {
-        step1.classList.remove('active')
-        step2.classList.add('active')
-      })
+        const step1 = document.getElementById('step-1')
+        const step2 = document.getElementById('step-2')
 
-      document.getElementById('prev-button').addEventListener('click', () => {
-        step2.classList.remove('active')
-        step1.classList.add('active')
-      })
-
-      function closeOnboarding () {
-        document.body.removeChild(div)
-        document.removeEventListener('keydown', escKeyListener)
-      }
-
-      function escKeyListener (event) {
-        if (event.key === 'Escape' || event.key === 'Esc') {
-          closeOnboarding()
+        document.getElementById('next-button').onclick = () => {
+          step1.classList.remove('active')
+          step2.classList.add('active')
         }
-      }
 
-      document.getElementById('continue-button').addEventListener('click', closeOnboarding)
-      document.addEventListener('keydown', escKeyListener)
-    })
-    .catch(err => console.error('Error loading onboarding:', err))
-}
+        document.getElementById('prev-button').onclick = () => {
+          step2.classList.remove('active')
+          step1.classList.add('active')
+        }
 
-// Show onboarding on first visit (using chrome.storage to share state across domains)
-if (isCorrectPath && (localStorage.getItem('temporary_chat') === 'true' || hasActiveParam)) {
-  chrome.storage.local.get('onboardingDone', (result) => {
-    if (!result.onboardingDone) {
-      chrome.storage.local.set({ onboardingDone: true })
-      showOnboarding()
-    }
+        const close = () => {
+          div.remove()
+          document.removeEventListener('keydown', onEsc)
+        }
+
+        const onEsc = e => (e.key === 'Escape' || e.key === 'Esc') && close()
+
+        document.getElementById('continue-button').onclick = close
+        document.addEventListener('keydown', onEsc)
+      })
   })
-}
+})()

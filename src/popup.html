@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>ChatGPT Extension</title>
     <style>
         :root {
@@ -9,6 +10,7 @@
             --slider-background: #ccc;
             --slider-checked-background: #4caf50;
             --text-color: white;
+            --button-hover: #333;
         }
 
         @media (prefers-color-scheme: light) {
@@ -18,99 +20,162 @@
                 --slider-background: #ccc;
                 --slider-checked-background: #4caf50;
                 --text-color: black;
+                --button-hover: #e0e0e0;
             }
         }
 
-        .body_popup {
-            width: 350px;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            width: 280px;
             background: var(--background-color);
-            border: 1px solid var(--border-color);
             color: var(--text-color);
-            margin: 0 !important;
             padding: 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+        }
 
-            .title_popup {
-                font-size: 1rem;
-                text-align: center;
-                color: var(--text-color);
-                text-decoration: none;
-                margin-bottom: 0.5rem;
+        .title {
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
 
-                &:hover {
-                    text-decoration: underline;
-                    transition: 0.3s;
-                }
-            }
+        .toggle-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background: var(--button-hover);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
 
-            .donation {
-                margin-bottom: 1rem;
+        .toggle-label {
+            font-size: 0.9rem;
+        }
 
-                .title {
-                    font-size: 0.8rem;
-                    margin-bottom: 0.5rem;
-                }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
 
-                .links {
-                    display: flex;
-                    gap: 0.5rem;
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
 
-                    a img {
-                        border-radius: 50%;
-                        transition: 0.3s;
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--slider-background);
+            transition: 0.2s;
+            border-radius: 24px;
+        }
 
-                        &:hover {
-                            transform: scale(1.1);
-                            transition: 0.3s;
-                        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.2s;
+            border-radius: 50%;
+        }
 
-                    }
-                }
-            }
+        input:checked + .slider {
+            background-color: var(--slider-checked-background);
+        }
 
-            .contact {
-                color: white;
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
 
-                p {
-                    margin-bottom: 0.3rem;
-                }
+        .review-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--button-hover);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            cursor: pointer;
+        }
 
-                p, a, span {
-                    color: var(--text-color);
-                }
-            }
+        .review-btn:hover {
+            background: var(--border-color);
+        }
 
-            hr {
-                border: 0;
-                height: 1px;
-                background: var(--border-color);
-                margin: 0.5rem 0;
-            }
+        .review-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: #ffc107;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border-color);
+            margin: 1rem 0;
+        }
+
+        .contact {
+            font-size: 0.75rem;
+            text-align: center;
+        }
+
+        .contact a {
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        .contact a:hover {
+            opacity: 1;
         }
     </style>
 </head>
-<body class="body_popup">
-<a class="title_popup" href="https://chromewebstore.google.com/detail/chatgpt-keep-temporary-ch/hgbjeckjcopbneknolackcedoknnkjpe?authuser=0&hl=en-GB" target="_blank">
-    ChatGPT: Temporary chat always ON
-</a>
-<div class="donation">
-    <p class="title">Found the extension helpful? You can support us by:</p>
-    <div class="links">
-        <a href="https://ko-fi.com/eliseinicolae" target="_blank">
-            <img src="icons/ko-fi.png" alt="ko-fi logo" width="30" height="30">
-        </a>
-        <a href="https://revolut.me/eliseinicolae" target="_blank">
-            <img src="icons/revolut.png" alt="revolut logo" width="30" height="30">
-        </a>
+<body>
+    <div class="title">Temporary Chat Always ON</div>
+
+    <div class="toggle-section">
+        <span class="toggle-label">Temporary Chat</span>
+        <label class="switch">
+            <input type="checkbox" id="toggle-button">
+            <span class="slider"></span>
+        </label>
     </div>
-</div>
 
-<hr />
+    <a class="review-btn" href="https://chromewebstore.google.com/detail/chatgpt-keep-temporary-ch/hgbjeckjcopbneknolackcedoknnkjpe/reviews" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        Love it? Rate us!
+    </a>
 
-<div class="contact">
-    <p>Developer contact:</p>
-    <a href="https://www.linkedin.com/in/eliseinicolae/" target="_blank">https://www.linkedin.com/in/eliseinicolae/</a>
-    <span>or</span>
-    <a href="mailto:nicolae.elisei1999@gmail.com">email</a>
-</div>
+    <hr />
+
+    <div class="contact">
+        <a href="https://www.linkedin.com/in/eliseinicolae/" target="_blank">Developer: Elisei Nicolae</a>
+    </div>
+
+    <script src="popup.js"></script>
 </body>
 </html>

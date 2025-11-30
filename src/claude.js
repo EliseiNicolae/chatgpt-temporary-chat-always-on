@@ -1,127 +1,73 @@
 // Claude.ai - Incognito Chat Handler
+;(function () {
+  const KEY = 'temporary_chat'
 
-const STORAGE_KEY = 'temporary_chat'
+  const isMain = () => location.pathname === '/' || location.pathname === '/new'
+  const isChat = () => isMain() || /\/chat\//.test(location.pathname)
+  const hasParam = () => new URLSearchParams(location.search).has('incognito')
 
-function isOnChatPage () {
-  return window.location.pathname === '/' ||
-    window.location.pathname === '/new' ||
-    /\/chat\//.test(window.location.pathname)
-}
-
-function shouldShowToggle () {
-  return window.location.pathname === '/' || window.location.pathname === '/new'
-}
-
-function hasIncognitoParam () {
-  return new URLSearchParams(window.location.search).has('incognito')
-}
-
-function setIncognitoOn () {
-  if (!hasIncognitoParam() && isOnChatPage()) {
-    window.location.href = `${window.location.origin}/new?incognito`
-  }
-}
-
-function setIncognitoOff () {
-  if (hasIncognitoParam() && isOnChatPage()) {
-    const url = new URL(window.location.href)
-    url.searchParams.delete('incognito')
-    window.location.href = url.toString()
-  }
-}
-
-function handleInitialLoad () {
-  const stored = localStorage.getItem(STORAGE_KEY)
-
-  if (stored === null) {
-    localStorage.setItem(STORAGE_KEY, 'true')
-    setIncognitoOn()
-    return
-  }
-
-  if (stored === 'true') {
-    setIncognitoOn()
-    return
-  }
-
-  if (hasIncognitoParam()) {
-    localStorage.setItem(STORAGE_KEY, 'true')
-  }
-}
-
-function setupButtonObserver () {
-  if (!document.body) return
-  const observer = new MutationObserver(() => {
-    document.querySelectorAll('button').forEach(button => {
-      button.addEventListener('click', () => {
-        if (localStorage.getItem(STORAGE_KEY) === 'true') {
-          setTimeout(setIncognitoOn, 2)
-        }
-      })
-    })
-  })
-  observer.observe(document.body, { childList: true, subtree: true })
-}
-
-function watchUrlChanges () {
-  if (!document.body) return
-  let previousUrl = window.location.href
-
-  const observer = new MutationObserver(() => {
-    if (previousUrl !== window.location.href) {
-      previousUrl = window.location.href
-
-      const toggleWrapper = document.getElementById('toggle-wrapper')
-      if (toggleWrapper) {
-        toggleWrapper.style.display = shouldShowToggle() ? 'block' : 'none'
-      } else if (shouldShowToggle()) {
-        injectToggle()
-      }
-
-      if (isOnChatPage() && localStorage.getItem(STORAGE_KEY) === 'true' && !hasIncognitoParam()) {
-        setIncognitoOn()
-      }
+  const enable = () => {
+    if (!hasParam() && isChat()) {
+      location.href = `${location.origin}/new?incognito`
     }
+  }
+
+  const disable = () => {
+    if (hasParam()) {
+      const url = new URL(location.href)
+      url.searchParams.delete('incognito')
+      location.href = url.toString()
+    }
+  }
+
+  const get = cb => chrome.storage.local.get([KEY], r => cb(r[KEY] !== false))
+  const set = v => chrome.storage.local.set({ [KEY]: v === true })
+
+  const injectToggle = () => {
+    if (document.getElementById('toggle-wrapper')) return
+    fetch(chrome.runtime.getURL('toggle.html'))
+      .then(r => r.text())
+      .then(html => {
+        document.body.insertAdjacentHTML('beforeend', html)
+
+        const toggle = document.getElementById('toggle-button')
+        if (!toggle) return
+
+        get(on => (toggle.checked = on))
+
+        toggle.onchange = function () {
+          set(this.checked)
+          this.checked ? enable() : disable()
+        }
+
+        document.getElementById('new-chat-button').onclick = () =>
+          get(on => (location.href = on ? 'https://claude.ai/new?incognito' : 'https://claude.ai/new'))
+      })
+  }
+
+  // URL watcher for SPA navigation
+  let last = location.href
+  new MutationObserver(() => {
+    if (last === location.href) return
+    last = location.href
+
+    const w = document.getElementById('toggle-wrapper')
+    if (w) w.style.display = isMain() ? 'block' : 'none'
+    else if (isMain()) injectToggle()
+
+    if (isChat() && !hasParam()) get(on => on && enable())
+  }).observe(document.body, { childList: true, subtree: true })
+
+  // Sync with popup
+  chrome.storage.onChanged.addListener((c, a) => {
+    if (a !== 'local' || !c[KEY]) return
+    const on = c[KEY].newValue === true
+    const t = document.getElementById('toggle-button')
+    if (t) t.checked = on
+    on ? enable() : disable()
   })
 
-  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['href'] })
-}
-
-function injectToggle () {
-  if (!document.body || document.getElementById('toggle-wrapper')) return
-
-  fetch(chrome.runtime.getURL('toggle.html'))
-    .then(response => response.text())
-    .then(html => {
-      const container = document.createElement('div')
-      container.innerHTML = html
-      document.body.appendChild(container)
-
-      const toggle = document.getElementById('toggle-button')
-      if (!toggle) return
-
-      toggle.checked = localStorage.getItem(STORAGE_KEY) === 'true'
-      toggle.addEventListener('change', function () {
-        localStorage.setItem(STORAGE_KEY, this.checked ? 'true' : 'false')
-        this.checked ? setIncognitoOn() : setIncognitoOff()
-      })
-
-      const newChatBtn = document.getElementById('new-chat-button')
-      if (newChatBtn) {
-        newChatBtn.addEventListener('click', () => {
-          window.location.href = localStorage.getItem(STORAGE_KEY) === 'true'
-            ? 'https://claude.ai/new?incognito'
-            : 'https://claude.ai/new'
-        })
-      }
-    })
-    .catch(err => console.error('Error loading toggle:', err))
-}
-
-// Initialize
-watchUrlChanges()
-if (shouldShowToggle()) setTimeout(injectToggle, 500)
-if (isOnChatPage()) {
-  handleInitialLoad()
-  setupButtonObserver()
-}
+  // Init
+  if (isMain()) setTimeout(injectToggle, 500)
+  if (isChat()) get(on => on && enable())
+})()
