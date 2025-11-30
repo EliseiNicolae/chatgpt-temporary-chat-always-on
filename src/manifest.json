@@ -2,16 +2,16 @@
   "manifest_version": 3,
   "name": "ChatGPT: Temporary chat always ON",
   "version": "1.3.1",
-  "permissions": [ ],
+  "permissions": ["storage"],
   "content_scripts": [
     {
-      "matches": [
-        "https://chatgpt.com/*"
-      ],
-      "js": [
-        "onboarding.js",
-        "contentScript.js"
-      ],
+      "matches": ["https://chatgpt.com/*"],
+      "js": ["onboarding.js", "chatgpt.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://claude.ai/*"],
+      "js": ["onboarding.js", "claude.js"],
       "run_at": "document_end"
     }
   ],
@@ -26,7 +26,8 @@
         "icons/revolut.png"
       ],
       "matches": [
-        "https://chatgpt.com/*"
+        "https://chatgpt.com/*",
+        "https://claude.ai/*"
       ]
     }
   ],

@@ -25,23 +25,29 @@
             }
         }
 
-        #toggle-container {
-            display: flex;
+        #toggle-wrapper {
             position: fixed;
-            top: 0;
+            top: 5px;
             left: 50%;
             transform: translateX(-50%);
+            z-index: 9999;
+        }
+
+        #toggle-outer {
+            padding: 5px;
+            background: var(--background-color);
+            border-radius: 45px;
+        }
+
+        #toggle-container {
+            display: flex;
             align-items: center;
             gap: 10px;
-            background: var(--background-color);
             color: var(--text-color);
             padding: 5px 10px;
-            margin-left: 120px;
-            margin-top: 12px;
             border: solid 1px var(--border-color);
             border-radius: 35px;
             font-size: 0.85rem;
-            z-index: 9999;
         }
 
         .switch {
@@ -111,12 +117,7 @@
             background-color: var(--button-hover);
         }
 
-        /* media mobile */
         @media (max-width: 768px) {
-            #toggle-container {
-                margin-left: 90px;
-            }
-
             .text-temporary {
                 display: none;
             }
@@ -124,14 +125,18 @@
     </style>
 </head>
 <body>
-<div id="toggle-container">
-    <span class="text-temporary">Temporary Chat</span>
-    <label class="switch">
-        <input type="checkbox" id="toggle-button">
-        <span class="slider"></span>
-    </label>
-    <span class="divider"></span>
-    <button id="new-chat-button">+ New Chat</button>
+<div id="toggle-wrapper">
+    <div id="toggle-outer">
+        <div id="toggle-container">
+            <span class="text-temporary">Temporary Chat</span>
+            <label class="switch">
+                <input type="checkbox" id="toggle-button">
+                <span class="slider"></span>
+            </label>
+            <span class="divider"></span>
+            <button id="new-chat-button">+ New Chat</button>
+        </div>
+    </div>
 </div>
 </body>
 </html>

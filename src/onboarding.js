@@ -1,62 +1,64 @@
-// Function to show the onboarding HTML content
+// Onboarding Handler
+
+const isClaude = window.location.hostname === 'claude.ai'
+
+const isCorrectPath = isClaude
+  ? (window.location.pathname === '/' || window.location.pathname === '/new' || /\/chat\//.test(window.location.pathname))
+  : (window.location.pathname === '/' || window.location.pathname === '' || /\/c\//.test(window.location.pathname))
+
+const params = new URLSearchParams(window.location.search)
+
+const hasActiveParam = isClaude
+  ? params.has('incognito')
+  : (params.has('temporary-chat') && params.get('temporary-chat') === 'true')
+
 function showOnboarding () {
   fetch(chrome.runtime.getURL('onboarding.html'))
-      .then(response => response.text())
-      .then(data => {
-        const div = document.createElement('div')
-        div.innerHTML = data
-        document.body.appendChild(div)
+    .then(response => response.text())
+    .then(html => {
+      const div = document.createElement('div')
+      div.innerHTML = html
+      document.body.appendChild(div)
 
-        const toggle_img_element = document.getElementById('toggle-onboarding-image')
-        toggle_img_element.src = chrome.runtime.getURL('icons/toggle_onboarding.png')
+      document.getElementById('toggle-onboarding-image').src = chrome.runtime.getURL('icons/toggle_onboarding.png')
+      document.getElementById('new-chat-onboarding').src = chrome.runtime.getURL('icons/new_chat_onboarding.png')
 
-        const new_chat_onboarding = document.getElementById('new-chat-onboarding')
-        new_chat_onboarding.src = chrome.runtime.getURL('icons/new_chat_onboarding.png')
+      const step1 = document.getElementById('step-1')
+      const step2 = document.getElementById('step-2')
 
-        const step1 = document.getElementById('step-1')
-        const step2 = document.getElementById('step-2')
-        const nextButton = document.getElementById('next-button')
-        const prevButton = document.getElementById('prev-button')
-        const continueButton = document.getElementById('continue-button')
-
-        nextButton.addEventListener('click', () => {
-          step1.classList.remove('active')
-          step2.classList.add('active')
-        })
-
-        prevButton.addEventListener('click', () => {
-          step2.classList.remove('active')
-          step1.classList.add('active')
-        })
-
-        continueButton.addEventListener('click', () => {
-          setTemporaryChatOn()
-          document.body.removeChild(div)
-          document.removeEventListener('keydown', escKeyListener)
-        })
-
-        function escKeyListener (event) {
-          if (event.key === 'Escape' || event.key === 'Esc') {
-            document.body.removeChild(div)
-            document.removeEventListener('keydown', escKeyListener)
-          }
-        }
-
-        document.addEventListener('keydown', escKeyListener)
+      document.getElementById('next-button').addEventListener('click', () => {
+        step1.classList.remove('active')
+        step2.classList.add('active')
       })
-      .catch(error => console.error('Error fetching the onboarding HTML:', error))
+
+      document.getElementById('prev-button').addEventListener('click', () => {
+        step2.classList.remove('active')
+        step1.classList.add('active')
+      })
+
+      function closeOnboarding () {
+        document.body.removeChild(div)
+        document.removeEventListener('keydown', escKeyListener)
+      }
+
+      function escKeyListener (event) {
+        if (event.key === 'Escape' || event.key === 'Esc') {
+          closeOnboarding()
+        }
+      }
+
+      document.getElementById('continue-button').addEventListener('click', closeOnboarding)
+      document.addEventListener('keydown', escKeyListener)
+    })
+    .catch(err => console.error('Error loading onboarding:', err))
 }
 
-const isCorrectPath = window.location.pathname === '/' ||
-    window.location.pathname === '' ||
-    /\/c\//.test(window.location.pathname)
-const url = new URL(window.location.href)
-const params = new URLSearchParams(url.search)
-
-if (isCorrectPath &&
-    localStorage.getItem('gpt_onboardingDone_chrExt') === null &&
-    (localStorage.getItem('temporary_chat') === 'true' ||
-        params.has('temporary-chat') && params.get('temporary-chat') === 'true')) {
-  localStorage.setItem('gpt_onboardingDone_chrExt', 'true')
-  showOnboarding()
+// Show onboarding on first visit (using chrome.storage to share state across domains)
+if (isCorrectPath && (localStorage.getItem('temporary_chat') === 'true' || hasActiveParam)) {
+  chrome.storage.local.get('onboardingDone', (result) => {
+    if (!result.onboardingDone) {
+      chrome.storage.local.set({ onboardingDone: true })
+      showOnboarding()
+    }
+  })
 }
