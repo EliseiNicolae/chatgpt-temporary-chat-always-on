@@ -11,6 +11,7 @@
             --slider-background: #ccc;
             --slider-checked-background: #4caf50;
             --text-color: white;
+            --button-hover: #333;
         }
 
         @media (prefers-color-scheme: light) {
@@ -20,6 +21,7 @@
                 --slider-background: #ccc;
                 --slider-checked-background: #4caf50;
                 --text-color: black;
+                --button-hover: #e0e0e0;
             }
         }
 
@@ -39,6 +41,7 @@
             border: solid 1px var(--border-color);
             border-radius: 35px;
             font-size: 0.85rem;
+            z-index: 9999;
         }
 
         .switch {
@@ -86,6 +89,28 @@
             transform: translateX(20px);
         }
 
+        .divider {
+            width: 1px;
+            height: 20px;
+            background-color: var(--border-color);
+        }
+
+        #new-chat-button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+
+        #new-chat-button:hover {
+            background-color: var(--button-hover);
+        }
+
         /* media mobile */
         @media (max-width: 768px) {
             #toggle-container {
@@ -105,6 +130,8 @@
         <input type="checkbox" id="toggle-button">
         <span class="slider"></span>
     </label>
+    <span class="divider"></span>
+    <button id="new-chat-button">+ New Chat</button>
 </div>
 </body>
 </html>

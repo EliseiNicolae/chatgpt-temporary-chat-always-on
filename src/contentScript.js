@@ -150,6 +150,16 @@ function injectHTMLToggle () {
             setTemporaryChatOff()
           }
         })
+
+        const newChatBtn = document.getElementById('new-chat-button')
+        if (newChatBtn) {
+          newChatBtn.addEventListener('click', () => {
+            const isTemporary = localStorage.getItem('temporary_chat') === 'true'
+            window.location.href = isTemporary
+              ? 'https://chatgpt.com/?temporary-chat=true'
+              : 'https://chatgpt.com/'
+          })
+        }
       })
       .catch(error => console.error('Error fetching the HTML:', error))
 }
