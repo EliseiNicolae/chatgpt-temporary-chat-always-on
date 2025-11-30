@@ -3,10 +3,15 @@
 const STORAGE_KEY = 'temporary_chat'
 const PARAM_KEY = 'temporary-chat'
 
-const isOnChatPage =
-  window.location.pathname === '/' ||
-  window.location.pathname === '' ||
-  /\/c\//.test(window.location.pathname)
+function isOnChatPage () {
+  return window.location.pathname === '/' ||
+    window.location.pathname === '' ||
+    /\/c\//.test(window.location.pathname)
+}
+
+function shouldShowToggle () {
+  return window.location.pathname === '/' || window.location.pathname === ''
+}
 
 function getParams () {
   return new URLSearchParams(window.location.search)
@@ -22,22 +27,17 @@ function hasTemporaryParamFalse () {
 
 function setTemporaryChatOn () {
   const params = getParams()
-  if (!params.has(PARAM_KEY) || params.get(PARAM_KEY) === 'false') {
-    params.delete(PARAM_KEY)
+  if ((!params.has(PARAM_KEY) || params.get(PARAM_KEY) === 'false') && isOnChatPage()) {
     params.set(PARAM_KEY, 'true')
-    if (isOnChatPage) {
-      window.location.href = `${window.location.origin}/?${params}`
-    }
+    window.location.href = `${window.location.origin}/?${params}`
   }
 }
 
 function setTemporaryChatOff () {
   const params = getParams()
-  if (params.has(PARAM_KEY)) {
+  if (params.has(PARAM_KEY) && isOnChatPage()) {
     params.delete(PARAM_KEY)
-    if (isOnChatPage) {
-      window.location.href = `${window.location.origin}/?${params}`
-    }
+    window.location.href = `${window.location.origin}/?${params}`
   }
 }
 
@@ -56,23 +56,9 @@ function handleInitialLoad () {
   }
 
   if (hasTemporaryParam()) {
-    setTimeout(() => {
-      localStorage.setItem(STORAGE_KEY, 'true')
-      const toggle = document.getElementById('toggle-button')
-      if (toggle) toggle.checked = true
-    }, 100)
+    localStorage.setItem(STORAGE_KEY, 'true')
   } else if (hasTemporaryParamFalse()) {
-    setTimeout(() => {
-      localStorage.setItem(STORAGE_KEY, 'false')
-      const toggle = document.getElementById('toggle-button')
-      if (toggle) toggle.checked = false
-    }, 100)
-  }
-}
-
-function handleButtonClick () {
-  if (localStorage.getItem(STORAGE_KEY) === 'true') {
-    setTimeout(setTemporaryChatOn, 2)
+    localStorage.setItem(STORAGE_KEY, 'false')
   }
 }
 
@@ -80,7 +66,11 @@ function setupButtonObserver () {
   if (!document.body) return
   const observer = new MutationObserver(() => {
     document.querySelectorAll('button').forEach(button => {
-      button.addEventListener('click', handleButtonClick)
+      button.addEventListener('click', () => {
+        if (localStorage.getItem(STORAGE_KEY) === 'true') {
+          setTimeout(setTemporaryChatOn, 2)
+        }
+      })
     })
   })
   observer.observe(document.body, { childList: true, subtree: true })
@@ -94,30 +84,24 @@ function watchUrlChanges () {
     if (previousUrl !== window.location.href) {
       previousUrl = window.location.href
 
-      if (localStorage.getItem(STORAGE_KEY) === 'true' && !getParams().has(PARAM_KEY)) {
-        const toggle = document.getElementById('toggle-button')
-        if (toggle) toggle.checked = true
-        setTemporaryChatOn()
+      const toggleWrapper = document.getElementById('toggle-wrapper')
+      if (toggleWrapper) {
+        toggleWrapper.style.display = shouldShowToggle() ? 'block' : 'none'
+      } else if (shouldShowToggle()) {
+        injectToggle()
       }
 
-      if (hasTemporaryParam()) {
-        const toggle = document.getElementById('toggle-button')
-        if (toggle) toggle.checked = true
-        localStorage.setItem(STORAGE_KEY, 'true')
+      if (isOnChatPage() && localStorage.getItem(STORAGE_KEY) === 'true' && !hasTemporaryParam()) {
+        setTemporaryChatOn()
       }
     }
   })
 
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['href']
-  })
+  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['href'] })
 }
 
 function injectToggle () {
-  if (!document.body) return
+  if (!document.body || document.getElementById('toggle-wrapper')) return
 
   fetch(chrome.runtime.getURL('toggle.html'))
     .then(response => response.text())
@@ -132,18 +116,13 @@ function injectToggle () {
       toggle.checked = localStorage.getItem(STORAGE_KEY) === 'true'
       toggle.addEventListener('change', function () {
         localStorage.setItem(STORAGE_KEY, this.checked ? 'true' : 'false')
-        if (this.checked) {
-          setTemporaryChatOn()
-        } else {
-          setTemporaryChatOff()
-        }
+        this.checked ? setTemporaryChatOn() : setTemporaryChatOff()
       })
 
       const newChatBtn = document.getElementById('new-chat-button')
       if (newChatBtn) {
         newChatBtn.addEventListener('click', () => {
-          const isTemporary = localStorage.getItem(STORAGE_KEY) === 'true'
-          window.location.href = isTemporary
+          window.location.href = localStorage.getItem(STORAGE_KEY) === 'true'
             ? 'https://chatgpt.com/?temporary-chat=true'
             : 'https://chatgpt.com/'
         })
@@ -153,9 +132,9 @@ function injectToggle () {
 }
 
 // Initialize
-if (isOnChatPage) {
+watchUrlChanges()
+if (shouldShowToggle()) setTimeout(injectToggle, 100)
+if (isOnChatPage()) {
   handleInitialLoad()
-  watchUrlChanges()
   setupButtonObserver()
-  injectToggle()
 }

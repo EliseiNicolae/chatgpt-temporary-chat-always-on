@@ -3,8 +3,8 @@
 const isClaude = window.location.hostname === 'claude.ai'
 
 const isCorrectPath = isClaude
-  ? (window.location.pathname === '/' || window.location.pathname === '/new' || /\/chat\//.test(window.location.pathname))
-  : (window.location.pathname === '/' || window.location.pathname === '' || /\/c\//.test(window.location.pathname))
+  ? (window.location.pathname === '/' || window.location.pathname === '/new')
+  : (window.location.pathname === '/' || window.location.pathname === '')
 
 const params = new URLSearchParams(window.location.search)
 

@@ -2,28 +2,31 @@
 
 const STORAGE_KEY = 'temporary_chat'
 
-const isOnChatPage =
-  window.location.pathname === '/' ||
-  window.location.pathname === '/new' ||
-  /\/chat\//.test(window.location.pathname)
+function isOnChatPage () {
+  return window.location.pathname === '/' ||
+    window.location.pathname === '/new' ||
+    /\/chat\//.test(window.location.pathname)
+}
+
+function shouldShowToggle () {
+  return window.location.pathname === '/' || window.location.pathname === '/new'
+}
 
 function hasIncognitoParam () {
   return new URLSearchParams(window.location.search).has('incognito')
 }
 
 function setIncognitoOn () {
-  if (!hasIncognitoParam() && isOnChatPage) {
+  if (!hasIncognitoParam() && isOnChatPage()) {
     window.location.href = `${window.location.origin}/new?incognito`
   }
 }
 
 function setIncognitoOff () {
-  if (hasIncognitoParam() && isOnChatPage) {
+  if (hasIncognitoParam() && isOnChatPage()) {
     const url = new URL(window.location.href)
-    const params = new URLSearchParams(url.search)
-    params.delete('incognito')
-    const newParams = params.toString()
-    window.location.href = `${url.origin}${url.pathname}${newParams ? '?' + newParams : ''}`
+    url.searchParams.delete('incognito')
+    window.location.href = url.toString()
   }
 }
 
@@ -42,17 +45,7 @@ function handleInitialLoad () {
   }
 
   if (hasIncognitoParam()) {
-    setTimeout(() => {
-      localStorage.setItem(STORAGE_KEY, 'true')
-      const toggle = document.getElementById('toggle-button')
-      if (toggle) toggle.checked = true
-    }, 100)
-  }
-}
-
-function handleButtonClick () {
-  if (localStorage.getItem(STORAGE_KEY) === 'true') {
-    setTimeout(setIncognitoOn, 2)
+    localStorage.setItem(STORAGE_KEY, 'true')
   }
 }
 
@@ -60,7 +53,11 @@ function setupButtonObserver () {
   if (!document.body) return
   const observer = new MutationObserver(() => {
     document.querySelectorAll('button').forEach(button => {
-      button.addEventListener('click', handleButtonClick)
+      button.addEventListener('click', () => {
+        if (localStorage.getItem(STORAGE_KEY) === 'true') {
+          setTimeout(setIncognitoOn, 2)
+        }
+      })
     })
   })
   observer.observe(document.body, { childList: true, subtree: true })
@@ -74,30 +71,24 @@ function watchUrlChanges () {
     if (previousUrl !== window.location.href) {
       previousUrl = window.location.href
 
-      if (localStorage.getItem(STORAGE_KEY) === 'true' && !hasIncognitoParam()) {
-        const toggle = document.getElementById('toggle-button')
-        if (toggle) toggle.checked = true
-        setIncognitoOn()
+      const toggleWrapper = document.getElementById('toggle-wrapper')
+      if (toggleWrapper) {
+        toggleWrapper.style.display = shouldShowToggle() ? 'block' : 'none'
+      } else if (shouldShowToggle()) {
+        injectToggle()
       }
 
-      if (hasIncognitoParam()) {
-        const toggle = document.getElementById('toggle-button')
-        if (toggle) toggle.checked = true
-        localStorage.setItem(STORAGE_KEY, 'true')
+      if (isOnChatPage() && localStorage.getItem(STORAGE_KEY) === 'true' && !hasIncognitoParam()) {
+        setIncognitoOn()
       }
     }
   })
 
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['href']
-  })
+  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['href'] })
 }
 
 function injectToggle () {
-  if (!document.body) return
+  if (!document.body || document.getElementById('toggle-wrapper')) return
 
   fetch(chrome.runtime.getURL('toggle.html'))
     .then(response => response.text())
@@ -112,18 +103,13 @@ function injectToggle () {
       toggle.checked = localStorage.getItem(STORAGE_KEY) === 'true'
       toggle.addEventListener('change', function () {
         localStorage.setItem(STORAGE_KEY, this.checked ? 'true' : 'false')
-        if (this.checked) {
-          setIncognitoOn()
-        } else {
-          setIncognitoOff()
-        }
+        this.checked ? setIncognitoOn() : setIncognitoOff()
       })
 
       const newChatBtn = document.getElementById('new-chat-button')
       if (newChatBtn) {
         newChatBtn.addEventListener('click', () => {
-          const isTemporary = localStorage.getItem(STORAGE_KEY) === 'true'
-          window.location.href = isTemporary
+          window.location.href = localStorage.getItem(STORAGE_KEY) === 'true'
             ? 'https://claude.ai/new?incognito'
             : 'https://claude.ai/new'
         })
@@ -133,9 +119,9 @@ function injectToggle () {
 }
 
 // Initialize
-if (isOnChatPage) {
+watchUrlChanges()
+if (shouldShowToggle()) setTimeout(injectToggle, 500)
+if (isOnChatPage()) {
   handleInitialLoad()
-  watchUrlChanges()
   setupButtonObserver()
-  setTimeout(injectToggle, 500)
 }
